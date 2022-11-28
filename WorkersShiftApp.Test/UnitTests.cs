@@ -104,7 +104,7 @@ namespace WorkersShiftApp.Test
         }
 
         [Fact]
-        public async Task AddWorkerShiftWithTheSameId_InputShift_ReturnListOfWorkers()
+        public async Task AddWorkerShiftWithTheSameId_InputWorkerShift_ReturnListOfWorkers()
         {
             //Arrange
             Worker worker = new Worker() { Id = 1, Name = "Joshua" };
@@ -130,7 +130,34 @@ namespace WorkersShiftApp.Test
 
         }
 
-       
+        [Fact]
+        public async Task AddWorkerShiftWithTheSameShiftDay_InputWorkerShift_ReturnListOfWorkers()
+        {
+            //Arrange
+            Worker worker = new Worker() { Id = 1, Name = "Joshua" };
+            Shift shift = new Shift() { Id = 1, StartHour = 0, EndHour = 8 };
+            WorkerShift obj = new WorkerShift() { Id = 1, WorkerId = worker.Id, ShiftId = shift.Id, ShiftDay = DateTime.Now.AddDays(2) };
+
+
+            //Act
+            WorkerServices _workerServices = new WorkerServices();
+            var result = await _workerServices.AssignWorkerToShift(obj); //And A New Shift
+
+            Worker worker2 = new Worker() { Id = 1, Name = "Joshua" };
+            await _workerServices.AddWorker(worker2); //Add The First Shift
+
+
+            Shift shift2 = new Shift() { Id = 2, StartHour = 9, EndHour = 17 };
+            await _workerServices.AddShift(shift2); //Add The First Shift
+
+            WorkerShift obj2 = new WorkerShift() { Id = 1, WorkerId = worker.Id, ShiftId = shift.Id, ShiftDay = DateTime.Now.AddDays(2) };
+
+            //Assert
+            await Assert.ThrowsAsync<Exception>(() => _workerServices.AssignWorkerToShift(obj2)); //Add the Second Shift with the Same Id as the first ;-
+
+        }
+
+
 
     }
 }
